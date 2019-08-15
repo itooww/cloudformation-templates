@@ -1,0 +1,10 @@
+Resources:
+  MyRestApi:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Body:
+        openapi: "3.0.1"
+        info:
+          title: MyRestApi
+          version: v1
+        paths: {}
