@@ -1,0 +1,49 @@
+Parameters: 
+  MyStageName: 
+    Type: String
+    Default: hello
+Resources:
+  MyRestApi:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Body:
+        openapi: "3.0.1"
+        info:
+          title: "MyRestApi"
+          version: "2018-09-14T08:52:30Z"
+        paths:
+          /:
+            get:
+              responses:
+                "200":
+                  description: "200 response"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                passthroughBehavior: "when_no_match"
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                type: "mock"
+  MyRestApiDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn: MyRestApi
+    Properties:
+      Description: "This is Sample Deployment"
+      RestApiId: !Ref MyRestApi
+      StageName: !Ref MyStageName
+      StageDescription:
+        MethodSettings:
+          - ResourcePath: "/"
+            DataTraceEnabled: "true"
+            HttpMethod: "GET"
+            LoggingLevel: "INFO"
+            MetricsEnabled: "true"
+            DataTraceEnabled: "true"
+Outputs:
+  LogCheckCommand:
+    Value: !Join
+      - ' '
+      - - 'curl -v -X GET'
+        - !Sub 'https://${MyRestApi}.execute-api.${AWS::Region}.amazonaws.com/${MyStageName}/;'
+        - !Sub 'awslogs get API-Gateway-Execution-Logs_${MyRestApi}/${MyStageName} ALL --watch'
