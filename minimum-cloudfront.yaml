@@ -1,0 +1,16 @@
+Resources:
+  MyDistribution:
+    Type: "AWS::CloudFront::Distribution"
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: true
+          TargetOriginId: MyOrigin
+          ViewerProtocolPolicy: "https-only"
+        Enabled: true
+        Origins:
+         - DomainName: "httpbin.org"
+           Id: "MyOrigin"
+           CustomOriginConfig:
+            OriginProtocolPolicy: https-only
