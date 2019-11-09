@@ -1,0 +1,7 @@
+Resources:
+  MySecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      GenerateSecretString:
+        GenerateStringKey: 'password'
+        SecretStringTemplate: '{"username": "test-user"}'
