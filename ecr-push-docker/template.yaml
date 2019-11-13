@@ -1,0 +1,3 @@
+Resources:
+  MyRepository:
+    Type: AWS::ECR::Repository
