@@ -1,0 +1,46 @@
+Resources:
+
+  MyCluster:
+    Type: AWS::ECS::Cluster
+
+  MyTaskLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Ref MyCluster
+      RetentionInDays: 90
+
+  ECSTaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+ 
+  MyTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties: 
+      ContainerDefinitions: 
+        - 
+          Command: 
+            - 'date'
+          Image: alpine
+          LogConfiguration: 
+            LogDriver: awslogs
+            Options: 
+              awslogs-group: !Ref MyTaskLogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 'FARGATE_TASK'
+          MemoryReservation: 512
+          Name: alpine
+      Cpu: '256'
+      ExecutionRoleArn: !Ref ECSTaskExecutionRole
+      Memory: '512'
+      NetworkMode: awsvpc
+      RequiresCompatibilities: 
+        - FARGATE
