@@ -53,6 +53,12 @@ TASK_ARN=$(aws ecs list-tasks --cluster $CLUSTER_NAME | jq -r '.taskArns[0]')
 ENI_ID=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN | jq -r '.tasks[0].attachments[0].details[] | select(.name == "networkInterfaceId") | .value')
 MY_HTTPBIN_IP=$(aws ec2 describe-network-interfaces --network-interface-ids $ENI_ID | jq -r '.NetworkInterfaces[0].Association.PublicIp')
 
+# curl sample
+curl http://$MY_HTTPBIN_IP/get
+
+# stop task
+aws ecs stop-task --cluster $CLUSTER_NAME --task $TASK_ARN
+
 # remove parameter.json
 rm $JSON_FILENAME
 
