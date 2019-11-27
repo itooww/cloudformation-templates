@@ -1,0 +1,45 @@
+Resources:
+
+  MyWebSocketAPI:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: 'MyWebSocketAPI'
+      ProtocolType: WEBSOCKET
+      RouteSelectionExpression: '$request.body.action'
+
+  ConnectRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref MyWebSocketAPI
+      RouteKey: $connect
+      Target: !Join
+        - '/'
+        - - 'integrations'
+          - !Ref ConnectIntegration
+
+  ConnectIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref MyWebSocketAPI
+      IntegrationType: HTTP
+      IntegrationMethod: GET
+      IntegrationUri: 'https://httpbin.org/get'
+      RequestParameters: 
+        "integration.request.querystring.QueryStringConnectionId": "context.connectionId"
+        "integration.request.header.ConnectionIdHeader": "context.connectionId"
+
+  Deployment:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn:
+    - ConnectRoute
+    Properties:
+      ApiId: !Ref MyWebSocketAPI
+  Stage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      StageName: prod
+      DefaultRouteSettings:
+        DataTraceEnabled: true
+        LoggingLevel: 'INFO'
+      DeploymentId: !Ref Deployment
+      ApiId: !Ref MyWebSocketAPI
